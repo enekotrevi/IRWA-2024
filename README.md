@@ -18,7 +18,7 @@
   </thead>
   <tbody>
     <tr>
-      <td><a href="#">Part 1</a></td>
+      <td><a href="./part-1">Part 1</a></td>
       <td>Text Processing and Exploratory Data Analysis</td>
       <td>21/10/2024</td>
     </tr>
