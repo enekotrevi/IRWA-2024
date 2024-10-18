@@ -47,7 +47,7 @@ In this initial part of the project, you will find the first steps we have done.
 
 Next, in the second section, we have analize different studies to a better understand of the data. Some of these studies include: Word cloud, Correlation Matrix, Average,... 
 
-The results of these studies can be observed here(falta meter tag del report)
+The results of these studies can be observed [here](./part 1/IRWA-2024-u186663-u172936-u186652-part-1.pdf)
 
 Finally, to make use of the notebook, you simply need to run each of the cells in order and you have to put the rute in the corresponding site.
 
