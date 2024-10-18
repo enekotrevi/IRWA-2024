@@ -48,5 +48,5 @@ Next, in the second section, we have analize different studies to a better under
 
 The results of these studies can be observed here(falta meter tag del report)
 
-Finally, to make use of the notebook, you simply need to run each of the cells in order.
+Finally, to make use of the notebook, you simply need to run each of the cells in order and you have to put the rute in the corresponding site.
 
