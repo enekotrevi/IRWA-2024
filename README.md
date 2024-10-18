@@ -42,6 +42,7 @@
 
 ## Project Instructions
 **Part 1:**
+
 In this initial part of the project, you will find the first steps we have done.  Between them, the importantion of the different files, that will be used in the project are located in the Data folder. Besides, a pre-processing for the tweets has been permormed using process_tweet() function. 
 
 Next, in the second section, we have analize different studies to a better understand of the data. Some of these studies include: Word cloud, Correlation Matrix, Average,... 
