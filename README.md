@@ -51,3 +51,11 @@ The results of these studies can be observed [here](./part%201/IRWA-2024-u186663
 
 Finally, to make use of the notebook, you simply need to run each of the cells in order and you have to put the rute in the corresponding site.
 
+**Part 2:**
+
+In this scenario, the primary focus is on indexing and evaluation. The data preparation process involves integrating previous work into a new notebook, generating a new dataframe, and indexing tweets to build inverted indexes. For this task, a custom function called "create_index" is developed.
+
+A search engine, named "search," is implemented to retrieve tweets based on specific queries using keywords generated from word cloud analysis. The evaluation is divided into two parts: one focusing on a subset of the dataset and the other using expert judgment to assess the relevance of documents. Various evaluation metrics are presented for different queries, comparing two cases. Additionally, the analysis includes a two-dimensional scatter plot created with the T-SNE algorithm to visualize the relationships between tweets in the dataset. A dense cluster of points suggests similarities among tweets in that region, while the symmetrical distribution around the origin indicates balanced word embeddings.
+
+The results of these studies can be observed here[falta poner el tag].
+
