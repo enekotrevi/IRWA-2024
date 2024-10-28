@@ -23,7 +23,7 @@
       <td>21/10/2024</td>
     </tr>
     <tr>
-      <td><a href="./part 2">Part 2</a></td>
+      <td><a href="./Part 2. Indexing and Evaluation">Part 2</a></td>
       <td>Indexing and Evaluation</td>
       <td>29/10/2024</td>
     </tr>
