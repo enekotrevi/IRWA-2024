@@ -57,7 +57,7 @@ In this scenario, the primary focus is on indexing and evaluation. The data prep
 
 A search engine, named "search," is implemented to retrieve tweets based on specific queries using keywords generated from word cloud analysis. The evaluation is divided into two parts: one focusing on a subset of the dataset and the other using expert judgment to assess the relevance of documents. Various evaluation metrics are presented for different queries, comparing two cases. Additionally, the analysis includes a two-dimensional scatter plot created with the T-SNE algorithm to visualize the relationships between tweets in the dataset. A dense cluster of points suggests similarities among tweets in that region, while the symmetrical distribution around the origin indicates balanced word embeddings.
 
-The results of these studies can be observed [here](./Part-2.-Indexing-and-Evaluation/Data/IRWA-2024-u186663-u172936-u186652-part-2.pdf)
+The results of these studies can be observed [here](./Part 2. Indexing and Evaluation/Data/IRWA-2024-u186663-u172936-u186652-part-2.pdf)
 
 
 To run the notebook correctly, execute the cells in sequential order to ensure no variables lose their values. Replace doc_path_1 and doc_path_2 with the path to your files for proper loading.
