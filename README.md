@@ -72,3 +72,12 @@ index, tf, df, idf = create_index_tfidf(processed_tweets_df, num_tweets)
 
 After the first run, with the serialized data saved, you only need to load the data directly. For the last cell, note that the plot is generated very slowly. Instead, you can directly view the saved plot image in the folder for part 2.
 
+**Part 3: Ranking**
+
+In this part, the focus is on ranking documents based on defined queries, specifically finding documents that contain all query terms and sorting them by relevance. The process involves ranking documents using various methods, generating tweet vectors with Word2Vec, and exploring improved representation models like Doc2Vec and Sentence2Vec.
+
+The data preparation process involves integrating previous work into a new notebook, utilizing a dataset containing processed tweets, as well as data from the TF-IDF index, including TF, DF, and IDF values. All required data must be imported through functions defined in the notebook.
+
+To **run the notebook correctly**, execute the cells in sequential order to ensure no variables lose their values. Additionally, replace doc_path_1 and doc_path_2 with the correct file paths to ensure proper data loading. The data used in this part can be found in the "Part 2: Index and Evaluation/Data" section of our GitHub repository to avoid duplication.
+
+
