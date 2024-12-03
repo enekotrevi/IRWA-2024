@@ -1,0 +1,952 @@
+{% extends "base.html" %}
+{% block page_title %}{{ page_title }}{% endblock %}
+
+{% block header %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.6.2/chart.min.js"
+            integrity="sha512-tMabqarPtykgDtdtSqCL3uLVM0gS1ZkUAVhRFu1vSEFgvB73niFQWJuvviDyBGBH22Lcau4rHB5p2K2T0Xvr6Q=="
+            crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+{% block content %}
+    <!-- Tabs for different sections -->
+    <ul class="nav nav-tabs" id="myTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="visited-docs-tab" data-bs-toggle="tab" href="#visited-docs" 
+               role="tab" aria-controls="visited-docs" aria-selected="true">Visited Documents</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="searched-queries-tab" data-bs-toggle="tab" href="#searched-queries" 
+               role="tab" aria-controls="searched-queries" aria-selected="false">Searched Queries</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="http-tab" data-bs-toggle="tab" href="#http" 
+               role="tab" aria-controls="http" aria-selected="false">HTTP</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="visitors-history-tab" data-bs-toggle="tab" href="#visitors-history" 
+               role="tab" aria-controls="visitors-history" aria-selected="false">Visitors' History</a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="myTabContent">
+        <!-- Visited Documents Section -->
+        <div class="tab-pane fade show active" id="visited-docs" role="tabpanel" aria-labelledby="visited-docs-tab">
+            <p></p>
+            <h6>Quick Stats</h6>
+            <div id="visited-docs-stats">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Mean</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Standard Deviation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visited-docs-stats-body">
+                        <!-- Stats will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Engagement Metrics</h6>
+            <div id="engagement-metrics-table">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Engagement Score</th>
+                            <th>Average Dwell Time per View (s)</th>
+                            <th>Engagement Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="engagement-metrics-body">
+                        <!-- Metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="docs-success-rate">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Succes Rate by Time (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="docs-success-rate-body">
+                        <!-- Percentage data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Popularity Metrics</h6>
+            <div id="popularity-metrics-table">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Document ID</th>
+                            <th>View Share (%)</th>
+                            <th>Like-to-View Ratio</th>
+                            <th>Retweet-to-View Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="popularity-metrics-body">
+                        <!-- Metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Recency Analysis</h6>
+            <div id="recency-analysis-table">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Document ID</th>
+                            <th>Document Date</th>
+                            <th>Days Since Published</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recency-analysis-body">
+                        <!-- Metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <script>
+                const clicks_list = {{ clicks_data | tojson | safe }};
+    
+                // generic function to calculate statistics
+                const calculateStats = (dataArray) => {
+                    const mean = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+                    const min = Math.min(...dataArray);
+                    const max = Math.max(...dataArray);
+                    const variance = dataArray.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / dataArray.length;
+                    const standardDeviation = Math.sqrt(variance);
+                    return { mean, min, max, standardDeviation };
+                };
+    
+                // variables to analyze for Quick Stats
+                const statsData = [
+                    { variable: "Count", values: clicks_list.map(a => a.count) },
+                    { variable: "Likes", values: clicks_list.map(a => a.likes) },
+                    { variable: "Retweets", values: clicks_list.map(a => a.retweets) },
+                    { variable: "Dwell Time", values: clicks_list.map(a => a.dwell_time) }
+                ];
+    
+                const tableBody1 = document.getElementById("visited-docs-stats-body");
+                statsData.forEach(({ variable, values }) => {
+                    const { mean, min, max, standardDeviation } = calculateStats(values);
+                    const row = document.createElement("tr");
+                    const variableCell = document.createElement("td");
+                    variableCell.textContent = variable;
+                    row.appendChild(variableCell);
+                    [mean, min, max, standardDeviation].forEach(stat => {
+                        const cell = document.createElement("td");
+                        cell.textContent = stat.toFixed(2);
+                        row.appendChild(cell);
+                    });
+                    tableBody1.appendChild(row);
+                });
+    
+                // functions for Engagement Metrics
+                const calculateEngagementScore = (likes, retweets, dwellTime) => {
+                    return likes + (retweets * 2) + (dwellTime / 10);
+                };
+    
+                const calculateAverageDwellTime = (dwellTime, count) => {
+                    return count > 0 ? dwellTime / count : 0;
+                };
+    
+                const calculateEngagementRate = (likes, retweets, count) => {
+                    const interactions = likes + retweets;
+                    return count > 0 ? (interactions / count) : 0;
+                };
+    
+                // engagement Metrics
+                const engagementMetrics = clicks_list.map(doc => {
+                    const engagementScore = calculateEngagementScore(doc.likes, doc.retweets, doc.dwell_time);
+                    const averageDwellTime = calculateAverageDwellTime(doc.dwell_time, doc.count);
+                    const engagementRate = calculateEngagementRate(doc.likes, doc.retweets, doc.count);
+                    return {
+                        docId: doc.docId,
+                        engagementScore,
+                        averageDwellTime,
+                        engagementRate
+                    };
+                });
+    
+                const tableBody2 = document.getElementById("engagement-metrics-body");
+                engagementMetrics.forEach(({ docId, engagementScore, averageDwellTime, engagementRate }) => {
+                    const row = document.createElement("tr");
+                    const docIdCell = document.createElement("td");
+                    docIdCell.textContent = docId;
+                    row.appendChild(docIdCell);
+                    const engagementScoreCell = document.createElement("td");
+                    engagementScoreCell.textContent = engagementScore.toFixed(2);
+                    row.appendChild(engagementScoreCell);
+                    const averageDwellTimeCell = document.createElement("td");
+                    averageDwellTimeCell.textContent = averageDwellTime.toFixed(2);
+                    row.appendChild(averageDwellTimeCell);
+                    const engagementRateCell = document.createElement("td");
+                    engagementRateCell.textContent = engagementRate.toFixed(2);
+                    row.appendChild(engagementRateCell);
+                    tableBody2.appendChild(row);
+                });
+
+                // success rate 
+                // threshold (in seconds)  review the number
+                const timeThreshold = 5;
+
+                // evaluate the dwell and count the satifactory, based on the threshold
+                const satisfactoryDocsByTime = clicks_list.filter(doc => doc.dwell_time >= timeThreshold).length;
+
+                // compute the success rate 
+                const successRateByTimeDocs = (satisfactoryDocsByTime / clicks_list.length) * 100;
+
+                // build and display table
+                const docsSuccessRateTableBody = document.getElementById("docs-success-rate-body");
+                const row2 = document.createElement("tr");
+
+                const successRateTimeCell = document.createElement("td");
+                successRateTimeCell.textContent = successRateByTimeDocs.toFixed(2);
+                row2.appendChild(successRateTimeCell);
+
+                docsSuccessRateTableBody.appendChild(row2);
+
+                // total views
+                const totalViews = clicks_list.reduce((sum, doc) => sum + doc.count, 0);
+
+                // generate Popularity Metrics
+                const popularityMetrics = clicks_list.map(doc => {
+                    const viewShare = (doc.count / totalViews) * 100;
+                    const likeToViewRatio = doc.count > 0 ? doc.likes / doc.count : 0;
+                    const retweetToViewRatio = doc.count > 0 ? doc.retweets / doc.count : 0;
+                    return {
+                        docId: doc.docId,
+                        viewShare,
+                        likeToViewRatio,
+                        retweetToViewRatio
+                    };
+                });
+
+                // insert Popularity Metrics into the table
+                const tableBody3 = document.getElementById("popularity-metrics-body");
+                popularityMetrics.forEach(({ docId, viewShare, likeToViewRatio, retweetToViewRatio }) => {
+                    const row = document.createElement("tr");
+                    const docIdCell = document.createElement("td");
+                    docIdCell.textContent = docId;
+                    row.appendChild(docIdCell);
+
+                    const viewShareCell = document.createElement("td");
+                    viewShareCell.textContent = viewShare.toFixed(2);
+                    row.appendChild(viewShareCell);
+
+                    const likeToViewRatioCell = document.createElement("td");
+                    likeToViewRatioCell.textContent = likeToViewRatio.toFixed(2);
+                    row.appendChild(likeToViewRatioCell);
+
+                    const retweetToViewRatioCell = document.createElement("td");
+                    retweetToViewRatioCell.textContent = retweetToViewRatio.toFixed(2);
+                    row.appendChild(retweetToViewRatioCell);
+
+                    tableBody3.appendChild(row);
+                });
+
+                const currentDate = new Date();
+
+                // calculate days since publication for each document
+                const recencyData = clicks_list.map(doc => {
+                    const docDate = new Date(doc.doc_date);
+                    const daysSincePublished = Math.round((currentDate - docDate) / (1000 * 60 * 60 * 24));
+                    return { docId: doc.docId, docDate: doc.doc_date, daysSincePublished };
+                });
+
+
+                // recency Metrics into the table
+                const tableBody4 = document.getElementById("recency-analysis-body");
+                recencyData.forEach(({ docId, docDate, daysSincePublished, recencyScore }) => {
+                    const row = document.createElement("tr");
+
+                    const docIdCell = document.createElement("td");
+                    docIdCell.textContent = docId;
+                    row.appendChild(docIdCell);
+
+                    const docDateCell = document.createElement("td");
+                    docDateCell.textContent = docDate;
+                    row.appendChild(docDateCell);
+
+                    const daysSincePublishedCell = document.createElement("td");
+                    daysSincePublishedCell.textContent = daysSincePublished;
+                    row.appendChild(daysSincePublishedCell);
+
+                    tableBody4.appendChild(row);
+                });
+            </script>
+        </div>
+    
+        <!-- Searched Queries Section -->
+        <div class="tab-pane fade" id="searched-queries" role="tabpanel" aria-labelledby="searched-queries-tab">
+            <p></p>
+            <h6>Quick Stats</h6>
+            <div id="searched-queries-stats">
+                <table class="table table-bordered" style="font-size: 0.85em;"> 
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Mean</th>
+                            <th>Min</th>
+                            <th>Max</th>
+                            <th>Standard Deviation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queries-searched-stats-body">
+                        <!-- Stats will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Popularity Metrics</h6>
+            <div id="searched-queries-popularity">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Query ID</th>
+                            <th>Terms</th>
+                            <th>Search Share (%)</th>
+                            <th>Time Rate (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queries-popularity-body">
+                        <!-- Popularity data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6><Engagement</h6>
+            <div id="queries-success-rate">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Succes Rate by Terms (%)</th>
+                            <th>Succes Rate by Time (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queries-success-rate-body">
+                        <!-- Percentage data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Difficulty Metrics Table -->
+            <h6>Difficulty Metrics</h6>
+            <div id="searched-queries-difficulty">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Query ID</th>
+                            <th>Terms</th>
+                            <th>Number of Terms</th>
+                            <th>Difficulty</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queries-difficulty-body">
+                        <!-- Difficulty data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <div id="short-long-queries-percentages">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Percentage of Short Queries (%)</th>
+                            <th>Percentage of Long Queries (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="queries-percentages-body">
+                        <!-- Percentage data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <script>
+                const queries_list = {{ searched_queries | tojson | safe }};
+                console.log("Searched Queries Data:", queries_list);
+
+                if (!queries_list || queries_list.length === 0) {
+                    console.error("No data found in 'searched_queries'. Please check the backend.");
+                } else {
+                    // variables of queries
+                    const queriesTimes = queries_list.map(query => query.times_searched);
+                    const queriesLength = queries_list.map(query => query.length);
+                    const queriesDwell = queries_list.map(query => query.dwell_time);
+
+                    // generic function to calculate statistics
+                    const calculateStats = (dataArray) => {
+                        const mean = dataArray.reduce((sum, value) => sum + value, 0) / dataArray.length;
+                        const min = Math.min(...dataArray);
+                        const max = Math.max(...dataArray);
+                        const variance = dataArray.reduce((sum, value) => sum + Math.pow(value - mean, 2), 0) / dataArray.length;
+                        const standardDeviation = Math.sqrt(variance);
+                        return { mean, min, max, standardDeviation };
+                    };
+
+                    // calculate stats for searched queries
+                    const timesStats = calculateStats(queriesTimes);
+                    const lengthStats = calculateStats(queriesLength);
+                    const dwellStats = calculateStats(queriesDwell);
+
+                    const tableBody2 = document.getElementById("queries-searched-stats-body");
+
+                    // row for "Times Searched"
+                    const rowTimes = document.createElement("tr");
+                    const variableCellTimes = document.createElement("td");
+                    variableCellTimes.textContent = "Times Searched";
+                    rowTimes.appendChild(variableCellTimes);
+                    const statsTimes = [timesStats.mean, timesStats.min, timesStats.max, timesStats.standardDeviation];
+                    statsTimes.forEach(stat => {
+                        const cell = document.createElement("td");
+                        cell.textContent = stat.toFixed(2);
+                        rowTimes.appendChild(cell);
+                    });
+                    tableBody2.appendChild(rowTimes);
+
+                    // row for "Length of Queries"
+                    const rowLength = document.createElement("tr");
+                    const variableCellLength = document.createElement("td");
+                    variableCellLength.textContent = "Length of Queries"; 
+                    rowLength.appendChild(variableCellLength);
+                    const statsLength = [lengthStats.mean, lengthStats.min, lengthStats.max, lengthStats.standardDeviation];
+                    statsLength.forEach(stat => {
+                        const cell = document.createElement("td");
+                        cell.textContent = stat.toFixed(2);
+                        rowLength.appendChild(cell);
+                    });
+                    tableBody2.appendChild(rowLength);
+
+                    // row for "Dwell"
+                    const rowDwell = document.createElement("tr");
+                    const variableCellDwell = document.createElement("td");
+                    variableCellDwell.textContent = "Query Dwell"; 
+                    rowDwell.appendChild(variableCellDwell);
+                    const statsDwell = [dwellStats.mean, dwellStats.min, dwellStats.max, dwellStats.standardDeviation];
+                    statsDwell.forEach(stat => {
+                        const cell = document.createElement("td");
+                        cell.textContent = stat.toFixed(2);
+                        rowDwell.appendChild(cell);
+                    });
+                    tableBody2.appendChild(rowDwell);
+                    
+                    // threshold (in seconds)
+                    // adjust this
+                    const timeThreshold = 2 * 60;
+                    
+                    // fucntion to compare terms between two queries
+                    const compareTerms = (currentQuery, previousQuery) => {
+                        const currentTerms = currentQuery.terms.split(" ");
+                        const previousTerms = previousQuery.terms.split(" ");
+
+                        // find common terms
+                        const commonTerms = currentTerms.filter(term => previousTerms.includes(term));
+                        const commonPercentage = (commonTerms.length / currentTerms.length) * 100;
+
+                        // threshold
+                        return commonPercentage >= 70;
+                    };
+
+                    // state of the query - satisfaction or not
+                    const satisfactionStatusByTerms = [];
+                    const satisfactionStatusByTime = [];
+                    
+                    // compare each query with the previous one 
+                    for (let i = 1; i < queries_list.length; i++) {
+                        const currentQuery = queries_list[i];
+                        const previousQuery = queries_list[i - 1];
+
+                        if (compareTerms(currentQuery, previousQuery)) {
+                            satisfactionStatusByTerms[i - 1] = false;
+                        } else {
+                            satisfactionStatusByTerms[i - 1] = true;
+                        }
+
+                        // evaluate by time - based on the threshold
+                        if (currentQuery.dwell_time < timeThreshold) {
+                            satisfactionStatusByTime[i] = false;
+                        } else {
+                            satisfactionStatusByTime[i] = true;
+                        }
+                    }
+                    
+                    // the last query is always true (satisaction - anything to compare)
+                    satisfactionStatusByTerms.push(true); 
+                    satisfactionStatusByTime.push(true);
+
+                    // compute the success rate
+                    const totalQueries = queries_list.length;
+
+                    // terms
+                    const satisfactoryQueries = satisfactionStatusByTerms.filter(status => status === true).length;
+                    const successRate = (satisfactoryQueries / totalQueries) * 100;
+                    
+                    // time
+                    const satisfactoryQueriesByTime = satisfactionStatusByTime.filter(status => status === true).length;
+                    const successRateByTime = (satisfactoryQueriesByTime / totalQueries) * 100;
+
+                    // insert rates into the table
+                    const successRateTableBody = document.getElementById("queries-success-rate-body");
+
+                    const row1 = document.createElement("tr");
+
+                    // by terms
+                    const successRateCell = document.createElement("td");
+                    successRateCell.textContent = successRate.toFixed(2);
+                    row1.appendChild(successRateCell);
+
+                    // by time
+                    const successRateTimeCell = document.createElement("td");
+                    successRateTimeCell.textContent = successRateByTime.toFixed(2); 
+                    row1.appendChild(successRateTimeCell);
+
+                    successRateTableBody.appendChild(row1);
+
+                    // search Share and time Rate
+                    const totalSearches = queriesTimes.reduce((sum, value) => sum + value, 0);
+                    const totalDwellTime = queriesDwell.reduce((sum, value) => sum + value, 0);
+                    const popularityBody = document.getElementById("queries-popularity-body");
+
+                    queries_list.forEach(query => {
+                        const searchShare = (query.times_searched / totalSearches) * 100;
+                        const timeRate = (query.dwell_time / totalDwellTime) * 100; 
+
+                        const row = document.createElement("tr");
+
+                        // query ID
+                        const idCell = document.createElement("td");
+                        idCell.textContent = query.id;
+                        row.appendChild(idCell);
+
+                        //terms
+                        const termsCell = document.createElement("td");
+                        termsCell.textContent = query.terms;
+                        row.appendChild(termsCell);
+
+                        // search Share
+                        const shareCell = document.createElement("td");
+                        shareCell.textContent = searchShare.toFixed(2);
+                        row.appendChild(shareCell);
+
+                        // time Rate
+                        const timeRateCell = document.createElement("td");
+                        timeRateCell.textContent = timeRate.toFixed(2);
+                        row.appendChild(timeRateCell);
+
+                        popularityBody.appendChild(row);
+                    });
+
+                    //  terms from queries
+                    const allTerms = [];
+                    queries_list.forEach(query => {
+                        allTerms.push(...query.terms.split(" ")); 
+                    });
+
+                    //  calculate term frequency
+                    const getTermFrequency = (term) => {
+                        return allTerms.filter(t => t === term).length;
+                    };
+
+                    // difficulty for each query
+                    const calculateDifficulty = (terms) => {
+                        let difficulty = 0;
+                        terms.forEach(term => {
+                            const termLength = term.length;
+                            const termFrequency = getTermFrequency(term);
+                            difficulty += (termLength / termFrequency);
+                        });
+                        return difficulty;
+                    };
+
+                    // difficulty Metrics table
+                    const difficultyTableBody = document.getElementById("queries-difficulty-body");
+
+                    queries_list.forEach(query => {
+                        const terms = query.terms.split(" ");
+                        const difficulty = calculateDifficulty(terms);
+
+                        const row = document.createElement("tr");
+
+                        // query ID
+                        const idCell = document.createElement("td");
+                        idCell.textContent = query.id;
+                        row.appendChild(idCell);
+
+                        // terms
+                        const termsCell = document.createElement("td");
+                        termsCell.textContent = query.terms;
+                        row.appendChild(termsCell);
+
+                        // number of terms
+                        const numTermsCell = document.createElement("td");
+                        numTermsCell.textContent = terms.length;
+                        row.appendChild(numTermsCell);
+
+                        // difficulty
+                        const difficultyCell = document.createElement("td");
+                        difficultyCell.textContent = difficulty.toFixed(2); 
+                        row.appendChild(difficultyCell);
+
+                        difficultyTableBody.appendChild(row);
+                    });
+
+                    //const totalQueries = queries_list.length;
+
+                    // calculate the number of short and long queries
+                    const shortQueries = queries_list.filter(query => query.length <= 2).length;
+                    const longQueries = queries_list.filter(query => query.length > 5).length;
+
+                    // calculate the percentages for short and long queries
+                    const shortQueriesPercentage = (shortQueries / totalQueries) * 100;
+                    const longQueriesPercentage = (longQueries / totalQueries) * 100;
+
+                    // populate the Short & Long Queries Percentages table
+                    const percentagesTableBody = document.getElementById("queries-percentages-body");
+                    const row = document.createElement("tr");
+
+                    // percentage of Short Queries
+                    const shortQueriesCell = document.createElement("td");
+                    shortQueriesCell.textContent = shortQueriesPercentage.toFixed(2); 
+                    row.appendChild(shortQueriesCell);
+
+                    // percentage of Long Queries
+                    const longQueriesCell = document.createElement("td");
+                    longQueriesCell.textContent = longQueriesPercentage.toFixed(2);
+                    row.appendChild(longQueriesCell);
+
+                    percentagesTableBody.appendChild(row);
+                }
+            </script>
+        </div>
+
+        <!-- HTTP Section -->
+        <div class="tab-pane fade" id="http" role="tabpanel" aria-labelledby="http-tab">
+            <p></p>
+            <h6>Request Metrics</h6>
+            <div id="http-request-metrics">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody id="http-request-metrics-body">
+                        <!-- Request metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Click Metrics</h6>
+            <div id="http-click-metrics">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Element</th>
+                            <th>URL</th>
+                            <th>Click Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="http-click-metrics-body">
+                        <!-- Click metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <h6>Session Analysis</h6>
+            <div id="http-session-analysis">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Session Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="http-session-analysis-body">
+                        <!-- Session analysis data will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+            <script>
+                const httpRequests = {{ requests | tojson | safe }};
+                const httpClicks = {{ clicks | tojson | safe }};
+                const httpSessions = {{ sessions | tojson | safe }};
+
+                // Populate Request Metrics
+                const requestMetricsBody = document.getElementById("http-request-metrics-body");
+                const totalRequests = httpRequests.length;
+                const uniqueIPs = new Set(httpRequests.map(req => req.ip_address)).size;
+                const methodCounts = httpRequests.reduce((acc, req) => {
+                    acc[req.method] = (acc[req.method] || 0) + 1;
+                    return acc;
+                }, {});
+
+                const requestMetrics = [
+                    { metric: "Total Requests", value: totalRequests },
+                    ...Object.entries(methodCounts).map(([method, count]) => ({
+                        metric: `Requests (${method})`,
+                        value: count,
+                    })),
+                ];
+
+                requestMetrics.forEach(({ metric, value }) => {
+                    const row = document.createElement("tr");
+                    const metricCell = document.createElement("td");
+                    const valueCell = document.createElement("td");
+                    metricCell.textContent = metric;
+                    valueCell.textContent = value;
+                    row.appendChild(metricCell);
+                    row.appendChild(valueCell);
+                    requestMetricsBody.appendChild(row);
+                });
+
+                // Populate Click Metrics
+                const clickMetricsBody = document.getElementById("http-click-metrics-body");
+                const clickCounts = httpClicks.reduce((acc, click) => {
+                    const key = `${click.element} | ${click.url}`;
+                    acc[key] = (acc[key] || 0) + 1;
+                    return acc;
+                }, {});
+
+                Object.entries(clickCounts).forEach(([key, count]) => {
+                    const [element, url] = key.split(" | ");
+                    const row = document.createElement("tr");
+                    const elementCell = document.createElement("td");
+                    const urlCell = document.createElement("td");
+                    const countCell = document.createElement("td");
+                    elementCell.textContent = element;
+                    urlCell.textContent = url;
+                    countCell.textContent = count;
+                    row.appendChild(elementCell);
+                    row.appendChild(urlCell);
+                    row.appendChild(countCell);
+                    clickMetricsBody.appendChild(row);
+                });
+
+                // Populate Session Analysis
+                const sessionAnalysisBody = document.getElementById("http-session-analysis-body");
+                const sessionsByDate = httpSessions.reduce((acc, session) => {
+                    const date = new Date(session.timestamp).toLocaleDateString();
+                    acc[date] = (acc[date] || 0) + 1;
+                    return acc;
+                }, {});
+
+                Object.entries(sessionsByDate).forEach(([date, count]) => {
+                    const row = document.createElement("tr");
+                    const dateCell = document.createElement("td");
+                    const countCell = document.createElement("td");
+                    dateCell.textContent = date;
+                    countCell.textContent = count;
+                    row.appendChild(dateCell);
+                    row.appendChild(countCell);
+                    sessionAnalysisBody.appendChild(row);
+                });
+            </script>
+        </div>
+
+        <!-- Visitors History Section -->
+        <div class="tab-pane fade" id="visitors-history" role="tabpanel" aria-labelledby="visitors-history-tab">
+            <p></p>
+            <h6>Traffic Timing Metrics - Distribution</h6>
+
+            <!-- Daily Traffic -->
+            <div id="daily-traffic" class="table-container">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Visitor Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-traffic-body">
+                        <!-- Daily traffic metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Weekly Traffic -->
+            <div id="weekly-traffic" class="table-container">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Week</th>
+                            <th>Visitor Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="weekly-traffic-body">
+                        <!-- Weekly traffic metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Monthly Traffic -->
+            <div id="monthly-traffic" class="table-container">
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Month</th>
+                            <th>Visitor Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monthly-traffic-body">
+                        <!-- Monthly traffic metrics will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Visitor Technology Preferences -->
+            <div id="visitor-technology-preferences" class="table-container">
+                <h6>Visitor Technology Preferences</h6>
+                <table class="table table-bordered" style="font-size: 0.85em;">
+                    <thead>
+                        <tr>
+                            <th>Browser</th>
+                            <th>Operating System</th>
+                            <th>Device</th>
+                            <th>Visitor Count</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitor-technology-body">
+                        <!-- Visitor technology preferences will be dynamically inserted here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <script>
+                const visitors_list = {{ visitor_history | tojson | safe }};
+                console.log("Visitors Data:", visitors_list);
+            
+                if (!visitors_list || visitors_list.length === 0) {
+                    console.error("No data found in 'visitor_history'. Please check the backend.");
+                } else {
+                    // dates and technology preferences
+                    const visitorsDates = visitors_list.map(a => a.date);
+                    const visitorsBrowsers = visitors_list.map(a => a.browser);
+                    const visitorsOS = visitors_list.map(a => a.OS);
+                    const visitorsDevices = visitors_list.map(a => a.device);
+            
+                    // functions to extract data
+                    function getHour(date) {
+                        return new Date(date).getHours(); // Get the hour from the date
+                    }
+            
+                    function getWeek(date) {
+                        const d = new Date(date);
+                        const start = new Date(d.getFullYear(), 0, 1);
+                        const days = Math.floor((d - start) / (24 * 60 * 60 * 1000));
+                        return Math.ceil((days + 1) / 7); // Week number
+                    }
+            
+                    function getMonth(date) {
+                        return new Date(date).getMonth(); // Get the month (0 - 11)
+                    }
+                
+            
+                    // daily Traffic
+                    const dailyTraffic = {};
+                    visitorsDates.forEach(date => {
+                        const day = date.split('T')[0]; // Extract the date (YYYY-MM-DD)
+                        dailyTraffic[day] = (dailyTraffic[day] || 0) + 1;
+                    });
+            
+                    // weekly Traffic
+                    const weeklyTraffic = {};
+                    visitorsDates.forEach(date => {
+                        const week = getWeek(date);
+                        weeklyTraffic[week] = (weeklyTraffic[week] || 0) + 1;
+                    });
+            
+                    // monthly Traffic
+                    const monthlyTraffic = {};
+                    visitorsDates.forEach(date => {
+                        const month = getMonth(date);
+                        monthlyTraffic[month] = (monthlyTraffic[month] || 0) + 1;
+                    });
+            
+                    // daily Traffic
+                    const dailyTrafficBody = document.getElementById("daily-traffic-body");
+                    Object.keys(dailyTraffic).forEach(day => {
+                        const row = document.createElement("tr");
+                        const metricCell = document.createElement("td");
+                        metricCell.textContent = `${day}`;
+                        row.appendChild(metricCell);
+                        const countCell = document.createElement("td");
+                        countCell.textContent = dailyTraffic[day];
+                        row.appendChild(countCell);
+                        dailyTrafficBody.appendChild(row);
+                    });
+            
+                    // weekly Traffic
+                    const weeklyTrafficBody = document.getElementById("weekly-traffic-body");
+                    Object.keys(weeklyTraffic).forEach(week => {
+                        const row = document.createElement("tr");
+                        const metricCell = document.createElement("td");
+                        metricCell.textContent = `Week: ${week}`;
+                        row.appendChild(metricCell);
+                        const countCell = document.createElement("td");
+                        countCell.textContent = weeklyTraffic[week];
+                        row.appendChild(countCell);
+                        weeklyTrafficBody.appendChild(row);
+                    });
+            
+                    // monthly Traffic
+                    const monthlyTrafficBody = document.getElementById("monthly-traffic-body");
+                    Object.keys(monthlyTraffic).forEach(month => {
+                        const row = document.createElement("tr");
+                        const metricCell = document.createElement("td");
+                        metricCell.textContent = `Month: ${month + 1}`; // Month is 0-indexed
+                        row.appendChild(metricCell);
+                        const countCell = document.createElement("td");
+                        countCell.textContent = monthlyTraffic[month];
+                        row.appendChild(countCell);
+                        monthlyTrafficBody.appendChild(row);
+                    });
+            
+                    // visitor Technology Preferences - Browser, OS, Device
+                    const technologyPreferences = {};
+                    visitorsBrowsers.forEach((browser, index) => {
+                        const os = visitorsOS[index];
+                        const device = visitorsDevices[index];
+                        const key = `${browser} | ${os} | ${device}`;
+                        technologyPreferences[key] = (technologyPreferences[key] || 0) + 1;
+                    });
+            
+                    // sorting technology preferences by visitor count in descending order
+                    const sortedTechnologyPreferences = Object.entries(technologyPreferences)
+                        .sort((a, b) => b[1] - a[1]);
+            
+                    const technologyBody = document.getElementById("visitor-technology-body");
+                    sortedTechnologyPreferences.forEach(([techKey, count]) => {
+                        const row = document.createElement("tr");
+                        const [browser, os, device] = techKey.split(' | ');
+                        const browserCell = document.createElement("td");
+                        browserCell.textContent = browser;
+                        row.appendChild(browserCell);
+                        const osCell = document.createElement("td");
+                        osCell.textContent = os;
+                        row.appendChild(osCell);
+                        const deviceCell = document.createElement("td");
+                        deviceCell.textContent = device;
+                        row.appendChild(deviceCell);
+                        const countCell = document.createElement("td");
+                        countCell.textContent = count;
+                        row.appendChild(countCell);
+                        technologyBody.appendChild(row);
+                    });
+                }
+            </script>            
+        </div>
+    </div>
+
+        <div>
+            <div class="back-links">
+                <a href="#" onclick="history.go(-1)">Go Back</a>
+                <a href="#" onclick="history.go(-2)">Go Back 2 pages</a>
+                <a href="#" onclick="history.go(-3)">Go Back 3 pages</a>
+                <a href="#" onclick="history.go(-4)">Go Back 4 pages</a>
+            </div>
+            <div class="nav-links">
+                <a href="/stats">Stats</a>
+                <a href="/dashboard">Dashboard</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

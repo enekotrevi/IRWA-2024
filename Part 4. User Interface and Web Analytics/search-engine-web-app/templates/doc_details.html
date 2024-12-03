@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Detail - IRWA Search Engine</title>
+    <link rel="stylesheet" href="static/styles/custom.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Document Details</h1>
+
+        {% if item %}
+            <div class="document-details">
+                <p><strong>Document ID:</strong> {{ item.docId }}</p>
+                <p><strong>Tweet ID:</strong> {{ item.id }}</p>
+                <p><strong>Title:</strong> {{ item.title }}</p>
+                <p><strong>Description:</strong> {{ item.description }}</p>
+                <p><strong>Published Date:</strong> {{ item.doc_date }}</p>
+                <p><strong>Likes:</strong> {{ item.likes }}</p>
+                <p><strong>Retweets:</strong> {{ item.retweets }}</p>
+                <p><strong>URL:</strong> <a href="{{ item.url }}" target="_blank">{{ item.url }}</a></p>
+                <p><strong>Hashtags:</strong> {{ item.hashtags }}</p>
+            </div>
+        {% else %}
+            <p>Document not found.</p>
+        {% endif %}
+
+        <div class="back-links">
+            <a href="/save_dwell_time?docId={{ item.docId }}" onclick="event.preventDefault(); 
+                    fetch(this.href).then(() => history.go(-1))">Go Back</a>
+            <a href="#" onclick="history.go(-2)">Go Back 2 pages</a>
+            <a href="#" onclick="history.go(-3)">Go Back 3 pages</a>
+            <a href="#" onclick="history.go(-4)">Go Back 4 pages</a>
+        </div>
+
+        <div class="nav-links">
+            <a href="/stats">Stats</a>
+            <a href="/dashboard">Dashboard</a>
+        </div>
+    </div>
+
+</body>
+</html>

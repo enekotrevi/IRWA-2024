@@ -1,6 +1,0 @@
-{"session_id": 2731, "start_time": "2024-11-27 16:18:23"}
-{"session_id": 2721, "start_time": "2024-11-28 22:00:10"}
-{"session_id": 2001, "start_time": "2024-11-28 22:00:00"}
-{"session_id": 2711, "start_time": "2024-12-03 16:18:23"}
-{"session_id": 3000, "start_time": "2024-12-03 19:18:23"}
-{"session_id": 219, "start_time": "2024-12-02 11:18:23"}
