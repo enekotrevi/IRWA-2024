@@ -28,7 +28,7 @@
       <td>29/10/2024</td>
     </tr>
     <tr>
-      <td><a href="#">Part 3</a></td>
+      <td><a href="./Part 3. Ranking">Part 3</a></td>
       <td>Ranking</td>
       <td>14/11/2024</td>
     </tr>
