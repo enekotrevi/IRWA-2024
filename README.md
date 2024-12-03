@@ -80,4 +80,7 @@ The data preparation process involves integrating previous work into a new noteb
 
 To **run the notebook correctly**, execute the cells in sequential order to ensure no variables lose their values. Additionally, replace doc_path_1 and doc_path_2 with the correct file paths to ensure proper data loading. The data used in this part can be found in the "Part 2: Index and Evaluation/Data" section of our GitHub repository to avoid duplication.
 
+**Part 4: User Interface and Web Analytics**
+In this final part, our project delivers an intuitive search engine interface with refined result displays, including user-friendly features like a navigation bar, session insights, analysis,... We optimize performance by persistently storing the index for faster loads. On the analytics front, we offer dynamic showcases of user interactions, an intuitive dashboards for document clicks, session analysis, and insightful visualizations of searched queries. Session details, including IP and engagement duration, are captured and saved, enriching user experience. These implementations collectively prioritize user-centric interaction and provide robust analytics for understanding user behavior within the search engine.
 
+Detailed information about this section and the final results is accessible here(falata poner el link).
