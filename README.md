@@ -82,5 +82,5 @@ To **run the notebook correctly**, execute the cells in sequential order to ensu
 
 **Part 4: User Interface and Web Analytics**
 In this final part, our project delivers an intuitive search engine interface with refined result displays, including user-friendly features like a navigation bar, session insights, analysis,... We optimize performance by persistently storing the index for faster loads. On the analytics front, we offer dynamic showcases of user interactions, an intuitive dashboards for document clicks, session analysis, and insightful visualizations of searched queries. Session details, including IP and engagement duration, are captured and saved, enriching user experience. These implementations collectively prioritize user-centric interaction and provide robust analytics for understanding user behavior within the search engine.
-
+To **run the notebook correctly**, you have to download the zip uploaded in the release of the part 4, where it is the file named 'farmers-protest-tweets.json' because wee have not been able to upload it to the git code because it exceeds the allowed size.
 Detailed information about this section and the final results is accessible here(falata poner el link).
