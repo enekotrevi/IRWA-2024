@@ -35,7 +35,7 @@
     <tr>
       <td><a href="#">Part 4</a></td>
       <td>User Interface and Web Analytics</td>
-      <td>02/12/2024</td>
+      <td>04/12/2024</td>
     </tr>
   </tbody>
 </table>
