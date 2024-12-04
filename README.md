@@ -81,6 +81,12 @@ The data preparation process involves integrating previous work into a new noteb
 To **run the notebook correctly**, execute the cells in sequential order to ensure no variables lose their values. Additionally, replace doc_path_1 and doc_path_2 with the correct file paths to ensure proper data loading. The data used in this part can be found in the "Part 2: Index and Evaluation/Data" section of our GitHub repository to avoid duplication.
 
 **Part 4: User Interface and Web Analytics**
+
 In this final part, our project delivers an intuitive search engine interface with refined result displays, including user-friendly features like a navigation bar, session insights, analysis,... We optimize performance by persistently storing the index for faster loads. On the analytics front, we offer dynamic showcases of user interactions, an intuitive dashboards for document clicks, session analysis, and insightful visualizations of searched queries. Session details, including IP and engagement duration, are captured and saved, enriching user experience. These implementations collectively prioritize user-centric interaction and provide robust analytics for understanding user behavior within the search engine.
+
+For the proper execution of the project, when you want to make a new query, use the button located between the Pompeu Fabra logo and the text 'IRWA Search Engine'. This way, you will be able to correctly save the dwell time of the current query. On the other hand, for the proper handling of documents, when you are on a specific document detail and want to visit a new one, use the 'go back' button. This way, you will correctly save the dwell time of the document you are visiting.
+
 To **run the notebook correctly**, you have to download the zip uploaded in the release of the part 4, where it is the file named 'farmers-protest-tweets.json' because wee have not been able to upload it to the git code because it exceeds the allowed size.
 Detailed information about this section and the final results is accessible here(falata poner el link).
+
+
