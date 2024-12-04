@@ -87,6 +87,4 @@ In this final part, our project delivers an intuitive search engine interface wi
 For the proper execution of the project, when you want to make a new query, use the button located between the Pompeu Fabra logo and the text 'IRWA Search Engine'. This way, you will be able to correctly save the dwell time of the current query. On the other hand, for the proper handling of documents, when you are on a specific document detail and want to visit a new one, use the 'go back' button. This way, you will correctly save the dwell time of the document you are visiting.
 
 To **run the notebook correctly**, you have to download the zip uploaded in the release of the part 4, where it is the file named 'farmers-protest-tweets.json' because wee have not been able to upload it to the git code because it exceeds the allowed size.
-Detailed information about this section and the final results is accessible here(falata poner el link).
-
-
+Detailed information about this section and the final results is accessible here([https://github.com/enekotrevi/IRWA-2024/blob/main/Part%204.%20User%20Interface%20and%20Web%20Analytics/IRWA-2024-u186663-u186652-u172936-part-4.pdf])
