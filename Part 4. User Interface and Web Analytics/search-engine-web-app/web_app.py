@@ -99,13 +99,9 @@ def index():
         session_id = random.randint(1000, 9999)
         session['session_id'] = session_id
         session['start_time'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        session_data = {
-            'session_id': session.get('session_id'),
-            'start_time': session.get('start_time'),
-            'some_var': session.get('some_var')
-        }
+        session_data = Session(session['session_id'], session['start_time'])
         with open(sessions_file, 'a') as file:
-            line = session_data.to_dict() 
+            line = session_data
             json.dump(line, file, indent=4)  
 
     analytics_data.http_analytics.add_click("index", request.url, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
