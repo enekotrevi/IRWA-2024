@@ -265,16 +265,16 @@
             </div>  
 
             <script>
-                // Datos provenientes de las variables de contexto de Flask
+                // variables
                 const requests_list = {{ requests | tojson | safe }};
                 const clicks_list = {{ clicks | tojson | safe }};
                 const sessions_list = {{ sessions | tojson | safe }};
             
-                // Procesar datos de las solicitudes
+                // process requests 
                 const request_method = requests_list.map(a => a.method);
                 const request_ip_address = requests_list.map(a => a.ip_address);
             
-                // Contar las ocurrencias de cada método
+                // methods
                 const methodCount = request_method.reduce((acc, method) => {
                     acc[method] = (acc[method] || 0) + 1;
                     return acc;
@@ -283,7 +283,7 @@
                 const methodNames = Object.keys(methodCount);
                 const methodInstances = Object.values(methodCount);
             
-                // Contar las ocurrencias de cada dirección IP
+                // ip ocurrences
                 const ipCount = request_ip_address.reduce((acc, ip) => {
                     acc[ip] = (acc[ip] || 0) + 1;
                     return acc;
@@ -292,7 +292,7 @@
                 const ipNames = Object.keys(ipCount);
                 const ipInstances = Object.values(ipCount);
             
-                // Gráfico para distribución de métodos HTTP
+                // http method
                 new Chart(document.getElementById('methodChart').getContext('2d'), {
                     type: 'bar',
                     data: {
@@ -316,7 +316,7 @@
                     }
                 });
             
-                // Gráfico para distribución de direcciones IP (Gráfico de Pastel)
+                // ip 
                 new Chart(document.getElementById('httpIpChart').getContext('2d'), {
                     type: 'pie',
                     data: {
@@ -335,11 +335,11 @@
                     }
                 });
             
-                // Datos de los clics
+                // clicks
                 const clickElements = clicks_list.map(a => a.element);
                 const clickTimestamps = clicks_list.map(a => a.timestamp);
             
-                // Contar las ocurrencias de cada elemento
+                // ocurrences
                 const elementCount = clickElements.reduce((acc, element) => {
                     acc[element] = (acc[element] || 0) + 1;
                     return acc;
@@ -348,13 +348,13 @@
                 const elementNames = Object.keys(elementCount);
                 const elementInstances = Object.values(elementCount);
             
-                // Gráfico para clics por elemento
+                // plot
                 new Chart(document.getElementById('elementChart').getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: elementNames, 
                         datasets: [{
-                            label: 'Número de Clics por Elemento',
+                            label: 'Number of clicks per Element',
                             data: elementInstances, 
                             backgroundColor: 'rgba(255, 99, 132, 0.3)',
                             borderColor: 'rgba(255, 99, 132, 1)', 
@@ -372,24 +372,24 @@
                     }
                 });
             
-                // Procesar las marcas de tiempo para extraer minutos y agrupar por "fecha + minuto"
+                // date 
                 const minuteClicks = clickTimestamps.map(timestamp => {
                     const date = new Date(timestamp);
                     const minuteKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()} ${date.getHours()}:${date.getMinutes()}`;
                     return minuteKey;
                 });
             
-                // Clics por minuto
+                // clicks per minut
                 const minuteCount = minuteClicks.reduce((acc, minute) => {
                     acc[minute] = (acc[minute] || 0) + 1;
                     return acc;
                 }, {});
             
-                // Claves únicas de los minutos
+                // ocurrences
                 const minutes = Object.keys(minuteCount);
                 const minuteInstances = minutes.map(minute => minuteCount[minute]);
             
-                // Gráfico para clics por minuto
+                // plot
                 new Chart(document.getElementById('minuteChart').getContext('2d'), {
                     type: 'line',
                     data: {
@@ -414,30 +414,30 @@
                     }
                 });
             
-                // Procesar sesiones por día
+                // Psessions per date
                 const sessionDates = sessions_list.map(session => {
-                    const date = new Date(session.start_time.replace(' ', 'T'));  // Convertir espacio por 'T' para ISO 8601
+                    const date = new Date(session.start_time); 
                     const dateKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
                     return dateKey;
                 });
             
-                // Contar sesiones por día
+                // sessions per day
                 const sessionCountPerDay = sessionDates.reduce((acc, date) => {
                     acc[date] = (acc[date] || 0) + 1;
                     return acc;
                 }, {});
             
-                // Datos para sesiones
+                // data from sessions
                 const sessionDays = Object.keys(sessionCountPerDay);
                 const sessionCounts = sessionDays.map(day => sessionCountPerDay[day]);
             
-                // Gráfico para sesiones por día
+                // plot
                 new Chart(document.getElementById('sessionDayChart').getContext('2d'), {
                     type: 'line',
                     data: {
                         labels: sessionDays,
                         datasets: [{
-                            label: 'Sesiones por Día',
+                            label: 'Sessions per day',
                             data: sessionCounts,
                             backgroundColor: 'rgba(0, 128, 0, 0.3)',
                             borderColor: 'rgba(0, 128, 0, 1)',
